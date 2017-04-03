@@ -27,18 +27,21 @@
   "clojure.java.io/resource and Java in general expects components of
 a resource path name to be separated by '/' characters, regardless of
 the value of File/separator for the platform."
-  [ns-sym]
+  [ns-sym extension]
   (-> (name ns-sym)
       (string/replace "." "/")
       (string/replace "-" "_")
-      (str ".clj")))
+      (str extension)))
 
 (defn ^java.net.URL uri-for-ns
   "Returns a URI representing the namespace. Throws an
   exception if URI not found."
   [ns-sym]
-  (let [rsrc-path (ns-resource-name ns-sym)
-        uri (io/resource rsrc-path)]
+  (let [rsrc-path-clj (ns-resource-name ns-sym ".clj")
+        rsrc-path-cljc (ns-resource-name ns-sym ".cljc")
+        uri-clj (io/resource rsrc-path-clj)
+        uri-cljc (io/resource rsrc-path-cljc)
+        uri (or uri-clj uri-cljc)]
     (when-not uri
       (throw (Exception. (str "No file found for namespace " ns-sym))))
     uri))
