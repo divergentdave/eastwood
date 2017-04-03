@@ -278,7 +278,10 @@ recursing into ASTs with :op equal to :do"
         (begin-file-debug *file* *ns* opt)
         (loop [forms []
                asts []]
-          (let [form (tr/read reader nil eof)]
+          (let [form (tr/read {:read-cond :allow
+                               :features #{:clj}
+                               :eof eof}
+                              reader)]
             (if (identical? form eof)
               {:forms forms, :asts asts, :exception nil}
               (let [cur-env (env/deref-env)
